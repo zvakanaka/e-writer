@@ -1,0 +1,15 @@
+{
+  "name": "e-writer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -e 'import(\"./index.mjs\").then(writeEpub => writeEpub.default())'",
+    "test": "rm example.epub; npm start && open example.epub"
+  },
+  "author": "Adam Quinton",
+  "license": "MIT",
+  "dependencies": {
+    "zx": "^6.1.0"
+  }
+}
