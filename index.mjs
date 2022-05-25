@@ -28,16 +28,6 @@ export default async function write(options) {
       {
         title: 'Chapter 2',
         content: `<p>Chapter 2 content</p>`,
-        sections: [
-          {
-            title: 'Section 2.1',
-            content: '<p>Section 1.1 content</p>',
-          },
-          {
-            title: 'Section 2.2',
-            content: '<p>Section 2.2 content</p>',
-          },
-        ]
       },
     ],
     isoDateString: date.toISOString(),
@@ -97,9 +87,9 @@ function writeToc(epub) {
           ${epub.chapters.map((chapter, i) => {
     return `<li><a href="ch${padNumber(i + 1)}.xhtml">${chapter.title}</a></li>
             <ol>
-            ${chapter.sections.map((section, j) => {
-      return `<li><a href="ch${padNumber(i + 1)}#s${padNumber(j + 1)}">${section.title}</a></li>`
-    }).join('')}
+            ${chapter?.sections?.map((section, j) => {
+      return `<li><a href="ch${padNumber(i + 1)}.xhtml#s${padNumber(j + 1)}">${section.title}</a></li>`
+    }).join('') || ''}
             </ol>`
   }).join('')}
         </ol>
@@ -196,12 +186,12 @@ function writeChapter(epub, chapter, i) {
 <section class="chapter" epub:type="chapter" role="doc-chapter" aria-labelledby="c${i + 1}_h" id="id-ch${padNumber(i + 1)}">
   <h1 class="chapter-title" id="c${i + 1}_h">${chapter.title}</h1>
     ${chapter.content}
-    ${chapter.sections.map((section, j) => {
+    ${chapter?.sections?.map((section, j) => {
     return `<section class="section" epub:type="section" role="doc-section" id="s${padNumber(j + 1)}">
         <h2 class="section-title" id="s${padNumber(j + 1)}_h">${section.title}</h2>
         <p>${section.content}</p>
       </section>`
-  }).join('')}
+  }).join('') || ''}
 </section>
 </body>
 </html>`

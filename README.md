@@ -12,7 +12,7 @@ await writeEpub({
   creator: 'John Doe',
   authorFirstname: 'John',
   authorSurname: 'Doe',
-  content: [
+  chapters: [
     {
       title: 'Chapter 1',
       content: 'Content of chapter 1.',
