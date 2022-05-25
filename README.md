@@ -1,4 +1,4 @@
-Creates an epub file from a JSON object.
+Creates an EPUB file from a JSON object.
 
 ```js
 import writeEpub from 'e-writer';
@@ -28,3 +28,6 @@ await writeEpub({
 - [ ] Sections (sub-chapters)
 - [ ] Custom CSS/fonts
 - [ ] Output file as stream/buffer
+
+## Thank You
+[Matt Garrish's EPUB3 Samples](https://github.com/IDPF/epub3-samples/tree/main/30/accessible_epub_3)
