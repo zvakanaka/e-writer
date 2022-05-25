@@ -27,7 +27,7 @@ await writeEpub({
 
 ## Todo
 - [ ] Images (also custom cover image)
-- [ ] Sections (sub-chapters)
+- [x] Sections (sub-chapters)
 - [ ] Custom CSS/fonts
 - [ ] Output file as stream/buffer
 
