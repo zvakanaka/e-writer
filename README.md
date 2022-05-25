@@ -1,4 +1,4 @@
-![npm (custom registry)](https://img.shields.io/npm/v/e-writer/latest)  
+[![npm](https://img.shields.io/npm/v/e-writer/latest)](https://www.npmjs.com/package/e-writer)  
 
 Creates an EPUB file from a JSON object.
 
