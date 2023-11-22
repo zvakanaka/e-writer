@@ -3,7 +3,15 @@ import { $, cd, fs, path } from 'zx'
 export default async function write(options) {
   const date = new Date()
 
-  const epub = {
+  // overridden if supplied
+  const defaultOptions = {
+    outFileName: 'out.epub',
+    isoDateString: date.toISOString(),
+    isoDateStringShort: date.toISOString().split('T')[0],
+  }
+
+  const sampleImages = ['sunset.jpg'];
+  const sampleEpub = {
     outFileName: 'example.epub',
     title: 'Example Title',
     isbn: null,
@@ -11,6 +19,7 @@ export default async function write(options) {
     authorFirstname: 'John',
     authorSurname: 'Doe',
     coverImage: 'cover.jpg',
+    images: sampleImages,
     chapters: [
       {
         title: 'Chapter 1',
@@ -18,7 +27,14 @@ export default async function write(options) {
         sections: [
           {
             title: 'Section 1.1',
-            content: '<p>Section 1.1 content</p>',
+            content: `<div>
+  <p>Section 1.1 content</p>
+  <figure class="figure-float" id="${fileWithoutExtension(sampleImages[0])}-figure">
+    <img id="${fileWithoutExtension(sampleImages[0])}" src="images/${sampleImages[0]}" alt="A great sunset" />
+    <figcaption class="title">He paints a new one every day</figcaption>
+  </figure>
+</div>
+`,
           },
           {
             title: 'Section 1.2',
@@ -30,10 +46,12 @@ export default async function write(options) {
         title: 'Chapter 2',
         content: `<p>Chapter 2 content</p>`,
       },
-    ],
-    isoDateString: date.toISOString(),
-    isoDateStringShort: date.toISOString().split('T')[0],
-    ...options,
+    ]
+  }
+
+  const epub = {
+    ...defaultOptions,
+    ...(typeof options !== 'undefined' ? options : sampleEpub)
   }
 
   await $`rm -rf temp_epub_writer`
@@ -77,13 +95,15 @@ function padNumber(str) {
 async function placeImages(epub) {
   if (epub.coverImage) {
     fs.mkdirSync('EPUB/covers');
-    await $`cp '../${epub.coverImage}' EPUB/covers/`  
+    await $`cp '../${epub.coverImage}' EPUB/covers/`;
   }
-  // const fileNames = [epub.coverImage, ...epub.images].filter(Boolean);
-  // fs.mkdirSync('EPUB/images');
-  // await fileNames.forEach(async (fileName) => {
-  //   await $`cp '../${fileName}' EPUB/images/`  
-  // })
+  if (Array.isArray(epub.images) && epub.images.length > 0) {
+    const fileNames = epub.images;
+    fs.mkdirSync('EPUB/images');
+    await fileNames.forEach(async (fileName) => {
+      await $`cp '../${fileName}' EPUB/images/`
+    })
+  }
 }
 function writeToc(epub) {
   const str = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -136,11 +156,14 @@ function writeOpf(epub) {
     <item id="htmltoc" properties="nav" media-type="application/xhtml+xml" href="toc.xhtml"/>
     <item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>
     ${epub.coverImage ? `
-    <item id="cover-image" properties="cover-image" href="covers/${epub.coverImage}" media-type="image/jpeg"/>` : ''}
+    <item id="cover-image" properties="cover-image" href="covers/${epub.coverImage}" media-type="${getMediaType(epub.coverImage)}"/>` : ''}
     <item id="id-index" href="index.xhtml" media-type="application/xhtml+xml"/>
     ${epub.chapters.map((_, i) => {
-    return `<item id="id-ch${padNumber(i + 1)}" href="ch${padNumber(i + 1)}.xhtml" media-type="application/xhtml+xml"/>`
-  }).join('')}
+      return `<item id="id-ch${padNumber(i + 1)}" href="ch${padNumber(i + 1)}.xhtml" media-type="application/xhtml+xml"/>`
+    }).join('\n')}
+    ${epub.images.map((image, i) => {
+      return `<item id="${fileWithoutExtension(image)}" href="images/${image}" media-type="${getMediaType(image)}"/>`
+    }).join('\n')}
   </manifest>
   <spine>
 		<itemref idref="cover" linear="no" />
@@ -216,3 +239,30 @@ function writeChapter(epub, chapter, i) {
 </html>`
   fs.writeFileSync(`EPUB/ch${padNumber(i + 1)}.xhtml`, str)
 }
+
+function fileWithoutExtension(fileName) {
+  if (!fileName.includes('.')) {
+    return fileName
+  }
+  return fileName
+    .split('.')
+    .filter((_, i, arr) => i !== arr.length - 1)
+    .join('.')
+}
+
+function getMediaType(fileName) {
+  if (!fileName.includes('.')) {
+    console.warn(`No file extension found for: '${fileName}'`)
+    return ''
+  }
+  switch (fileName.split('.')[fileName.split('.').length - 1].toLowerCase()) {
+    case 'png':
+      return 'image/png'
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg'
+    default:
+      console.warn(`Unhandled file extension for: '${fileName}'`)
+      return ''
+  }
+} 

@@ -9,14 +9,16 @@ await writeEpub({
   title: 'My Book',
   isbn: '1234567890123',
   outFileName: 'my-book.epub',
-  cover: 'cover.jpg',
+  cover: 'cover.jpg', // optional
+  images: ['sunset.jpg'], // optional
   creator: 'John Doe',
   authorFirstname: 'John',
   authorSurname: 'Doe',
   chapters: [
     {
       title: 'Chapter 1',
-      content: 'Content of chapter 1.',
+      content: `Content of chapter 1.
+<img id="sunset" src="images/sunset.jpg" alt="A great sunset" />`,
     },
     {
       title: 'Chapter 2',
@@ -27,7 +29,7 @@ await writeEpub({
 ```
 
 ## Todo
-- [ ] Images
+- [x] Images
   - [x] Custom cover image
 - [x] Sections (sub-chapters)
 - [ ] Custom CSS/fonts
