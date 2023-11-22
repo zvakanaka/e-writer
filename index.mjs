@@ -1,4 +1,4 @@
-import { $, cd, fs } from 'zx'
+import { $, cd, fs, path } from 'zx'
 
 export default async function write(options) {
   const date = new Date()
@@ -10,6 +10,7 @@ export default async function write(options) {
     creator: 'John Doe',
     authorFirstname: 'John',
     authorSurname: 'Doe',
+    coverImage: 'cover.jpg',
     chapters: [
       {
         title: 'Chapter 1',
@@ -53,6 +54,7 @@ export default async function write(options) {
 
   await $`mkdir EPUB`
 
+  await placeImages(epub)
   writeToc(epub)
   writeOpf(epub)
   writeCover(epub)
@@ -70,6 +72,18 @@ export default async function write(options) {
 
 function padNumber(str) {
   return String(str).padStart(4, '0')
+}
+
+async function placeImages(epub) {
+  if (epub.coverImage) {
+    fs.mkdirSync('EPUB/covers');
+    await $`cp '../${epub.coverImage}' EPUB/covers/`  
+  }
+  // const fileNames = [epub.coverImage, ...epub.images].filter(Boolean);
+  // fs.mkdirSync('EPUB/images');
+  // await fileNames.forEach(async (fileName) => {
+  //   await $`cp '../${fileName}' EPUB/images/`  
+  // })
 }
 function writeToc(epub) {
   const str = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -119,6 +133,9 @@ function writeOpf(epub) {
     <meta property="schema:accessModeSufficient">textual</meta>
   </metadata>
   <manifest>
+    <item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>
+    ${epub.coverImage ? `
+    <item id="cover-image" properties="cover-image" href="covers/${epub.coverImage}" media-type="image/jpeg"/>` : ''}
     <item id="htmltoc" properties="nav" media-type="application/xhtml+xml" href="toc.xhtml"/>
     <item id="id-index" href="index.xhtml" media-type="application/xhtml+xml"/>
     ${epub.chapters.map((_, i) => {
@@ -150,8 +167,11 @@ function writeCover(epub) {
 		</style>
 	</head>
 	<body>
-    <!-- TODO: replace this with your cover image -->
-		${epub.title}
+    ${epub.coverImage ?
+    `
+    <figure id="cover-image">
+			<img role="doc-cover" src="covers/${epub.coverImage}" alt="${epub.title}" />
+		</figure>` : epub.title}
 	</body>
 </html>`
   fs.writeFileSync('EPUB/cover.xhtml', str)

@@ -9,6 +9,7 @@ await writeEpub({
   title: 'My Book',
   isbn: '1234567890123',
   outFileName: 'my-book.epub',
+  cover: 'cover.jpg',
   creator: 'John Doe',
   authorFirstname: 'John',
   authorSurname: 'Doe',
@@ -26,7 +27,8 @@ await writeEpub({
 ```
 
 ## Todo
-- [ ] Images (also custom cover image)
+- [ ] Images
+  - [x] Custom cover image
 - [x] Sections (sub-chapters)
 - [ ] Custom CSS/fonts
 - [ ] Output file as stream/buffer
