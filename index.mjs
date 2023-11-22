@@ -133,15 +133,14 @@ function writeOpf(epub) {
     <meta property="schema:accessModeSufficient">textual</meta>
   </metadata>
   <manifest>
+    <item id="htmltoc" properties="nav" media-type="application/xhtml+xml" href="toc.xhtml"/>
     <item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>
     ${epub.coverImage ? `
     <item id="cover-image" properties="cover-image" href="covers/${epub.coverImage}" media-type="image/jpeg"/>` : ''}
-    <item id="htmltoc" properties="nav" media-type="application/xhtml+xml" href="toc.xhtml"/>
     <item id="id-index" href="index.xhtml" media-type="application/xhtml+xml"/>
     ${epub.chapters.map((_, i) => {
     return `<item id="id-ch${padNumber(i + 1)}" href="ch${padNumber(i + 1)}.xhtml" media-type="application/xhtml+xml"/>`
   }).join('')}
-    <item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>
   </manifest>
   <spine>
 		<itemref idref="cover" linear="no" />
